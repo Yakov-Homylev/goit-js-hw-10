@@ -2,6 +2,8 @@ import { debounce } from 'lodash';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import './css/styles.css';
 import fetchCounties from "./fetchCountries";
+import countryInfoMarkup from './countryInfoBuilder.hbs'
+import countryListMarkup from "./countryListBuilder.hbs";
 
 
 const inputEl = document.querySelector('#search-box')
@@ -11,6 +13,7 @@ const countryContainerEl = document.querySelector('.country-info')
 const DEBOUNCE_DELAY = 300;
 
 inputEl.addEventListener('input', debounce(searchCountry, DEBOUNCE_DELAY))
+countryListEl.addEventListener('click', selectCountry)
 
 
 function searchCountry(evt) {
@@ -40,33 +43,34 @@ function searchCountry(evt) {
 }
 
 function countryContainerBuilder(data) {
-    const countryBuild = data.map(country => `<h2><img src="${country.flags.svg}" alt="flag ${country.name.official}">
-${country.name.official}</h2>
-<ul>
-  <li>
-  <p>Capital:</p>
-  <span>${country.capital}</span>
-  </li>
-  <li>
-    <p>Population:</p>
-    <span>${country.population}</span>
-  </li>
-  <li>
-    <p>Languages:</p>
-    <span>${Object.values(country.languages)}</span>
-  </li>
-</ul>`).join('')
-                countryContainerEl.insertAdjacentHTML('afterbegin', countryBuild)
+    countryContainerEl.insertAdjacentHTML('afterbegin', countryInfoMarkup(data))
 }
 
 function countryListBuilder(data) {
-    const countryList = data.map(country =>
-        `<li><img src="${country.flags.svg}" alt="flag ${country.name.official}"><p>${country.name.official}</p></li>`)
-        .join('')
-    countryListEl.insertAdjacentHTML('afterbegin', countryList)
+    countryListEl.insertAdjacentHTML('afterbegin', countryListMarkup(data))
 }
 
 function clearElements() {
     countryListEl.innerHTML = ""
     countryContainerEl.innerHTML = ""
+}
+
+function selectCountry(evt) {
+    evt.preventDefault();
+
+    if (evt.target.nodeName !== 'A' && evt.target.nodeName !== 'P') {
+        return
+    }
+    if (evt.target.nodeName === 'A') {
+        clearElements()
+        inputEl.value = evt.target.dataset.name
+        fetchCounties(evt.target.dataset.name.trim()).then(data => countryContainerBuilder(data))
+        return
+    }
+    if (evt.target.nodeName === 'P') {
+        clearElements()
+        inputEl.value = evt.target.parentElement.dataset.name
+        fetchCounties(evt.target.parentElement.dataset.name.trim()).then(data => countryContainerBuilder(data))
+        return
+    }
 }

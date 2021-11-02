@@ -30,10 +30,13 @@ body {
   display: flex;
   flex-direction: column;
   max-width: 400px;
+  list-style: none;
 }
-.country-list li {
+.country-list li a {
   display: flex;
   align-items: baseline;
+  text-decoration: none;
+  color: #000;
 }
 
 .country-list p {
@@ -67,6 +70,10 @@ body {
   margin-left: 10px;
 }
 .country-info span {
+  margin-left: 10px;
+  font-size: 24px;
+}
+.country-info ul li {
   margin-left: 10px;
   font-size: 24px;
 }
